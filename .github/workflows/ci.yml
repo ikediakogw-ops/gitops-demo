@@ -1,4 +1,4 @@
-name: CI Workflow with Multiple Trello Cards
+name: CI with Trello Update
 
 on:
   push:
@@ -10,34 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Run CI / Tests
-      run: |
-        echo "Running tests..."
-        # Replace this with your actual CI/test commands
-        echo "Tests passed"
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Gather Commit Info
-      id: commit_info
-      run: |
-        echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
-        echo "COMMIT_AUTHOR=$(git log -1 --pretty=%an)" >> $GITHUB_ENV
-        echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: npm install
 
-    - name: Create Multiple Trello Cards on Success
-      if: success()
-      run: |
-        for i in 1 2 3 4; do
-          curl -X POST "https://api.trello.com/1/cards" \
-            -d "key=${{ secrets.TRELLO_KEY }}" \
-            -d "token=${{ secrets.TRELLO_TOKEN }}" \
-            -d "idList=${{ secrets.TRELLO_LIST_ID }}" \
-            -d "name=CI Card $i - $BRANCH_NAME - $(date '+%Y-%m-%d %H:%M:%S')" \
-            -d "desc=Commit Message: $COMMIT_MSG
-Author: $COMMIT_AUTHOR
-Branch: $BRANCH_NAME
-Workflow run: $GITHUB_RUN_ID
-This is automatically created card number $i by GitHub Actions after a successful CI run."
-        done
+      - name: Run Linter
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Update Trello on Success
+        if: success()
+        run: |
+          curl -X PUT "https://api.trello.com/1/cards/${{ secrets.TRELLO_CARD_ID }}" \
+          -d "key=${{ secrets.TRELLO_KEY }}" \
+          -d "token=${{ secrets.TRELLO_TOKEN }}" \
+          -d "name=CI Passed - $(date)"
+
