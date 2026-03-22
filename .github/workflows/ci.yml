@@ -38,5 +38,6 @@ jobs:
             -d "desc=Commit Message: $COMMIT_MSG
 Author: $COMMIT_AUTHOR
 Branch: $BRANCH_NAME
+Workflow run: $GITHUB_RUN_ID
 This is automatically created card number $i by GitHub Actions after a successful CI run."
         done
