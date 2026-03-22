@@ -1,3 +1,11 @@
+# Ignore Node modules
 node_modules/
+
+# Ignore environment files
 .env
+
+# Ignore MacOS extra files
 .DS_Store
+
+# Ignore npm debug logs
+npm-debug.log
