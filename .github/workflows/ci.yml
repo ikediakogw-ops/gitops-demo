@@ -1,4 +1,4 @@
-name: CI Workflow with Trello Card Creation
+name: CI Workflow with Multiple Trello Cards
 
 on:
   push:
@@ -26,16 +26,17 @@ jobs:
         echo "COMMIT_AUTHOR=$(git log -1 --pretty=%an)" >> $GITHUB_ENV
         echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-    - name: Create Trello Card on Success
+    - name: Create Multiple Trello Cards on Success
       if: success()
       run: |
-        curl -X POST "https://api.trello.com/1/cards" \
-          -d "key=${{ secrets.TRELLO_KEY }}" \
-          -d "token=${{ secrets.TRELLO_TOKEN }}" \
-          -d "idList=${{ secrets.TRELLO_LIST_ID }}" \
-          -d "name=CI Passed - $BRANCH_NAME - $(date '+%Y-%m-%d %H:%M:%S')" \
-          -d "desc=Commit Message: $COMMIT_MSG
+        for i in 1 2 3 4; do
+          curl -X POST "https://api.trello.com/1/cards" \
+            -d "key=${{ secrets.TRELLO_KEY }}" \
+            -d "token=${{ secrets.TRELLO_TOKEN }}" \
+            -d "idList=${{ secrets.TRELLO_LIST_ID }}" \
+            -d "name=CI Card $i - $BRANCH_NAME - $(date '+%Y-%m-%d %H:%M:%S')" \
+            -d "desc=Commit Message: $COMMIT_MSG
 Author: $COMMIT_AUTHOR
 Branch: $BRANCH_NAME
-Workflow run: $GITHUB_RUN_ID
-This card was automatically created by GitHub Actions after a successful CI run."
+This is automatically created card number $i by GitHub Actions after a successful CI run."
+        done
