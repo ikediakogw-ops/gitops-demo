@@ -1,4 +1,4 @@
-name: [name of your workflow]
+name: CI with Trello Update
 
 on:
   push:
@@ -31,4 +31,6 @@ jobs:
         if: success()
         run: |
           curl -X PUT "https://api.trello.com/1/cards/${{ secrets.TRELLO_CARD_ID }}" \
-          --data "key=${{ secrets.TRELLO_KEY }}&token=${{ secrets.TRELLO_TOKEN }}&name=CI Passed - $(date)"
+          -d "key=${{ secrets.TRELLO_KEY }}" \
+          -d "token=${{ secrets.TRELLO_TOKEN }}" \
+          -d "name=CI Passed - $(date)"
